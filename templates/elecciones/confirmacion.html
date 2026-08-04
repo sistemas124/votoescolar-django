@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Comprobante Digital de Voto - VOTOESCOLAR{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-confirmacion {
+        background-color: #1e293b;
+        border: 2px solid #f5a425;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+    .btn-inicio-custom {
+        background-color: #f5a425 !important;
+        color: #0f172a !important;
+        font-weight: 800 !important;
+        font-size: 1.1rem !important;
+        border-radius: 12px !important;
+        padding: 12px 30px !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-decoration: none !important;
+        display: inline-block;
+    }
+    .btn-inicio-custom:hover {
+        background-color: #e09216 !important;
+        color: #000000 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(245, 164, 37, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-lg-7 col-md-9 col-12">
+        <div class="card card-confirmacion p-4 p-md-5 text-center">
+            
+            <!-- ENCABEZADO Y TÍTULO -->
+            <div class="mb-4">
+                <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 75px; height: 75px;">
+                    <i class="fa fa-check fa-3x"></i>
+                </div>
+                <h2 class="text-warning font-weight-bold mb-2">¡Voto Registrado Exitosamente!</h2>
+                <p class="text-white font-weight-bold" style="font-size: 1.1rem;">
+                    <i class="fa fa-qrcode text-warning mr-1"></i> Código QR de Verificación Secreta
+                </p>
+            </div>
+
+            <!-- CÓDIGO QR -->
+            <div class="my-3 p-3 bg-white d-inline-block mx-auto rounded shadow-lg border border-warning">
+                {% if qr_base64 %}
+                    <img src="data:image/png;base64,{{ qr_base64 }}" alt="QR Certificado" class="img-fluid" style="max-width: 210px;">
+                {% endif %}
+            </div>
+
+            <!-- DESCRIPCIÓN Y HASH -->
+            <div class="my-4">
+                <p class="text-light lead mb-2">
+                    Hemos enviado una copia digital de este comprobante con su código QR a tu dirección de correo electrónico.
+                </p>
+                {% if voto.hash_seguridad %}
+                    <div class="p-2 bg-dark rounded border border-secondary d-inline-block max-w-100 mt-2">
+                        <small class="text-muted d-block mb-1">Hash de Transacción Digital:</small>
+                        <code class="text-warning font-weight-bold" style="font-size: 0.85rem; word-break: break-all;">{{ voto.hash_seguridad }}</code>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- BOTÓN DESTACADO PARA REGRESAR -->
+            <div class="mt-3">
+                <a href="{% url 'elecciones:dashboard' %}" class="btn btn-inicio-custom shadow">
+                    <i class="fa fa-home mr-2"></i> Ir al Inicio / Panel
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

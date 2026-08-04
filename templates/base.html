@@ -1,0 +1,251 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}VOTOESCOLAR{% endblock %}</title>
+
+    <!-- CSS & Fuentes Originales -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/fontawesome.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/templatemo-grad-school.css' %}">
+
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* 1. Fondo principal oscuro */
+        body { 
+            background-color: #0f172a !important; 
+            color: #f8fafc !important; 
+            font-family: 'Montserrat', sans-serif; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        /* 2. Tarjetas y contenedores azul oscuro (NO rompe botones) */
+        .card, .table-container, .card-custom, .table-responsive {
+            background-color: #162239 !important;
+            color: #ffffff !important;
+            border: 1px solid #1e293b !important;
+        }
+
+        /* 3. Textos y títulos dentro de los contenedores */
+        .card h1, .card h2, .card h3, .card h4, .card h5, .card h6,
+        .card p, .card span, .card td, .card th,
+        .table h1, .table h2, .table h3, .table h4, .table h5, .table h6,
+        .table td, .table th {
+            color: #ffffff !important;
+        }
+
+        .text-warning, .text-yellow, em {
+            color: #f5a425 !important;
+        }
+
+        .text-muted {
+            color: #94a3b8 !important;
+        }
+
+        /* 4. Restablecer visibilidad de TODOS los botones */
+        .btn {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .btn-primary {
+            background-color: #0d6efd !important;
+            border-color: #0d6efd !important;
+            color: #ffffff !important;
+        }
+
+        .btn-success {
+            background-color: #198754 !important;
+            border-color: #198754 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-warning {
+            background-color: #f5a425 !important;
+            border-color: #f5a425 !important;
+            color: #162239 !important;
+            font-weight: 700 !important;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            color: #ffffff !important;
+        }
+
+        .btn-danger {
+            background-color: #dc3545 !important;
+            border-color: #dc3545 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-info {
+            background-color: #0dcaf0 !important;
+            border-color: #0dcaf0 !important;
+            color: #000000 !important;
+        }
+
+        /* 5. Header / Navbar */
+        .main-header { 
+            background-color: rgba(22, 34, 57, 0.95); 
+            border-bottom: 2px solid #f5a425; 
+            position: sticky; 
+            top: 0; 
+            z-index: 999; 
+        }
+        .main-header .logo a { 
+            color: #fff; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            font-size: 24px; 
+        }
+        .main-header .logo a em { 
+            color: #f5a425; 
+            font-style: normal; 
+        }
+        .main-nav .main-menu li a, .main-nav .main-menu li button.logout-btn { 
+            color: #fff; 
+            font-weight: 500; 
+            font-size: 14px; 
+            padding: 10px 15px; 
+            transition: all 0.3s; 
+            background: none; 
+            border: none; 
+            text-align: left; 
+            width: 100%; 
+        }
+        .main-nav .main-menu li a:hover, .main-nav .main-menu li button.logout-btn:hover { 
+            color: #f5a425; 
+            cursor: pointer; 
+        }
+        
+        .app-container { 
+            flex: 1; 
+            padding-top: 100px; 
+            padding-bottom: 50px; 
+        }
+        footer { 
+            background-color: #0b1120; 
+            border-top: 1px solid #1e293b; 
+            padding: 25px 0; 
+            text-align: center; 
+            color: #94a3b8; 
+            margin-top: auto; 
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Navbar -->
+    <header class="main-header clearfix" role="header">
+        <div class="logo">
+            <a href="{% url 'elecciones:dashboard' %}"><em>VOTO</em>ESCOLAR</a>
+        </div>
+        <a href="#menu" class="menu-link"><i class="fa fa-bars"></i></a>
+        <nav id="menu" class="main-nav" role="navigation">
+            <ul class="main-menu">
+                <li><a href="{% url 'elecciones:dashboard' %}"><i class="fa fa-tachometer"></i> Panel / Inicio</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'elecciones:papeleta' %}"><i class="fa fa-check-square-o"></i> Papeleta Digital</a></li>
+                    {% if user.is_staff or user.is_superuser %}
+                        <li><a href="{% url 'elecciones:candidatura_list' %}"><i class="fa fa-list"></i> Candidaturas</a></li>
+                        <li><a href="{% url 'elecciones:estudiante_list' %}"><i class="fa fa-users"></i> Padrón Estudiantil</a></li>
+                    {% endif %}
+                    <li class="has-submenu">
+                        <a href="#"><i class="fa fa-user"></i> {{ user.username }}</a>
+                        <ul class="sub-menu">
+                            <li>
+                                <form id="form-logout" action="{% url 'elecciones:logout_custom' %}" method="post" class="m-0 p-0">
+                                    {% csrf_token %}
+                                    <button type="button" id="btn-logout-swal" class="logout-btn"><i class="fa fa-sign-out"></i> Cerrar Sesión</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}"><i class="fa fa-sign-in"></i> Iniciar Sesión</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container app-container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <div class="container">
+            <p><i class="fa fa-copyright"></i> 2026 VOTOESCOLAR - Sistema Oficial de Elecciones Estudiantiles.</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- RENDERIZADOR DE MENSAJES DE DJANGO -->
+    {% if messages %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                {% for message in messages %}
+                    let iconType = 'info';
+                    let titleText = 'Mensaje';
+
+                    {% if message.tags == 'error' %}
+                        iconType = 'error';
+                        titleText = '¡Atención!';
+                    {% elif message.tags == 'warning' %}
+                        iconType = 'warning';
+                        titleText = 'Advertencia';
+                    {% elif message.tags == 'success' %}
+                        iconType = 'success';
+                        titleText = '¡Éxito!';
+                    {% endif %}
+
+                    Swal.fire({
+                        icon: iconType,
+                        title: titleText,
+                        text: "{{ message|escapejs }}",
+                        confirmButtonColor: '#1E3A8A'
+                    });
+                {% endfor %}
+            });
+        </script>
+    {% endif %}
+
+    <!-- Confirmación al Cerrar Sesión -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnLogout = document.getElementById('btn-logout-swal');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', function() {
+                    Swal.fire({
+                        title: '¿Cerrar Sesión?',
+                        text: 'Tendrás que volver a iniciar sesión para acceder.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Sí, salir',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById('form-logout').submit();
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

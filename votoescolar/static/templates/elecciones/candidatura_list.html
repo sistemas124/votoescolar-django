@@ -1,0 +1,72 @@
+{% extends 'elecciones/base.html' %}
+{% block title %}Candidaturas - VOTOESCOLAR{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Candidaturas</h2>
+    <a href="{% url 'votoescolar:candidatura_create' %}" class="btn btn-success">Nueva candidatura</a>
+</div>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Lista</th>
+            <th>Presidente</th>
+            <th>Estado</th>
+            <th>Creada</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for candidatura in candidaturas %}
+            <tr>
+                <td>{{ candidatura.nombre_lista }}</td>
+                <td>{{ candidatura.presidente }}</td>
+                <td>{{ candidatura.estado }}</td>
+                <td>{{ candidatura.fecha_creacion|date:'d/m/Y' }}</td>
+                <td>
+                    <a href="{% url 'votoescolar:candidatura_update' candidatura.pk %}" class="btn btn-sm btn-primary">Editar</a>
+                    
+                    <!-- Formulario con alerta SweetAlert2 para eliminar -->
+                    <form id="form-delete-cand-{{ candidatura.pk }}" action="{% url 'votoescolar:candidatura_delete' candidatura.pk %}" method="POST" class="d-inline">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-sm btn-danger btn-eliminar-cand" data-id="{{ candidatura.pk }}" data-nombre="{{ candidatura.nombre_lista }}">
+                            Eliminar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">No hay candidaturas registradas.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const botonesEliminar = document.querySelectorAll('.btn-eliminar-cand');
+
+    botonesEliminar.forEach(boton => {
+        boton.addEventListener('click', function() {
+            const candId = this.getAttribute('data-id');
+            const candNombre = this.getAttribute('data-nombre');
+
+            Swal.fire({
+                title: '¿Eliminar candidatura?',
+                html: `Estás a punto de borrar la lista <strong>"${candNombre}"</strong>.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`form-delete-cand-${candId}`).submit();
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

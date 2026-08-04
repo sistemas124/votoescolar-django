@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if object %}Editar Estudiante{% else %}Nuevo Estudiante{% endif %} - VOTOESCOLAR
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card p-4 shadow-lg border-0 rounded-3">
+            <h3 class="mb-4 text-white font-weight-bold border-bottom pb-2">
+                <i class="fa fa-user-plus text-warning me-2"></i>
+                {% if object %}Editar Estudiante{% else %}Nuevo Estudiante{% endif %}
+            </h3>
+
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label text-white font-weight-bold">
+                            {{ field.label }}
+                        </label>
+                        
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <small class="form-text text-muted d-block mt-1">{{ field.help_text }}</small>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <div class="text-danger small mt-1"><i class="fa fa-exclamation-circle"></i> {{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <!-- BOTONES VISIBLES CON AMARILLO Y GRIS -->
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a href="{% url 'elecciones:estudiante_list' %}" class="btn btn-secondary px-4 font-weight-bold">
+                        <i class="fa fa-times me-1"></i> Cancelar
+                    </a>
+                    
+                    <button type="submit" class="btn btn-warning px-4 font-weight-bold text-dark" style="background-color: #f5a425 !important; border-color: #f5a425 !important; color: #162239 !important; opacity: 1 !important;">
+                        <i class="fa fa-save me-1"></i> Guardar Estudiante
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

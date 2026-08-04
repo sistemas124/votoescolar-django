@@ -1,0 +1,101 @@
+{% extends 'elecciones/base.html' %}
+
+{% block title %}Papeleta Digital - VOTOESCOLAR{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Formulario Unificado para procesar el voto -->
+    <form id="formVotoDirecto" method="POST" action="{% url 'elecciones:papeleta' %}">
+        {% csrf_token %}
+        <!-- Input oculto para el ID de la lista -->
+        <input type="hidden" name="candidatura_id" id="candidatura_id_input" value="">
+
+        <div class="row">
+            {% for cand in candidaturas %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 p-4 shadow-lg border-0 rounded-4 text-white" style="background-color: #0f172a; border: 1px solid #1e293b;">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                {% if cand.logo %}
+                                    <img src="{{ cand.logo.url }}" class="rounded-circle" width="70" height="70" style="object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center" style="width:70px; height:70px;">
+                                        <i class="fa fa-users fa-2x text-dark"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <span class="badge bg-primary text-wrap mb-1" style="font-size: 0.9rem;">
+                                    {{ cand.nombre_lista }}
+                                </span>
+                                <h3 class="fw-bold mb-0 text-white">{{ cand.nombre_lista }}</h3>
+                                <p class="text-warning mb-0"><strong>Presidente:</strong> {{ cand.presidente }}</p>
+                            </div>
+                        </div>
+
+                        {% if cand.eslogan %}
+                            <p class="fst-italic text-light opacity-75">"{{ cand.eslogan }}"</p>
+                        {% endif %}
+
+                        {% if cand.plan_trabajo %}
+                            <div class="mb-3">
+                                <a href="{{ cand.plan_trabajo.url }}" target="_blank" class="btn btn-outline-light btn-sm rounded-pill">
+                                    <i class="fa fa-file-pdf-o me-1"></i> Ver Plan de Trabajo (PDF)
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        <hr class="border-secondary my-3">
+
+                        <!-- Botón para emitir voto -->
+                        <button type="button" 
+                                class="btn btn-warning btn-lg w-100 fw-bold py-3 text-dark btn-emitir-voto" 
+                                data-id="{{ cand.pk }}" 
+                                data-nombre="{{ cand.nombre_lista }}">
+                            <i class="fa fa-check-circle me-2"></i> VOTAR POR ESTA LISTA
+                        </button>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center text-white py-5">
+                    <h4>No hay candidaturas registradas para este proceso electoral.</h4>
+                </div>
+            {% endfor %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const botonesVotar = document.querySelectorAll('.btn-emitir-voto');
+
+    botonesVotar.forEach(boton => {
+        boton.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const candidaturaId = this.getAttribute('data-id');
+            const candidaturaNombre = this.getAttribute('data-nombre');
+
+            Swal.fire({
+                title: '¿Confirmar voto?',
+                html: `Estás a punto de votar por la lista <strong>"${candidaturaNombre}"</strong>.<br><br><span style="color: #ef4444; font-size: 0.9rem;">Esta acción es irreversible y no podrás cambiar tu decisión.</span>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10B981',
+                cancelButtonColor: '#EF4444',
+                confirmButtonText: 'Sí, emitir mi voto',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('candidatura_id_input').value = candidaturaId;
+                    document.getElementById('formVotoDirecto').submit();
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

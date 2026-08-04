@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Candidaturas - VOTOESCOLAR{% endblock %}
+
+{% block content %}
+<div class="card p-4 shadow-lg border-0 rounded-3">
+    <!-- Encabezado con título y botón principal -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h2 class="m-0 text-white font-weight-bold">
+            <i class="fa fa-list me-2"></i> Lista de Candidaturas
+        </h2>
+        
+        <a href="{% url 'elecciones:candidatura_create' %}" class="btn btn-warning font-weight-bold text-dark px-3 py-2" style="background-color: #f5a425 !important; border-color: #f5a425 !important; color: #162239 !important; opacity: 1 !important; visibility: visible !important;">
+            <i class="fa fa-plus me-1"></i> Nueva Candidatura
+        </a>
+    </div>
+
+    <!-- Tabla de Candidaturas -->
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 text-white">
+            <thead class="bg-dark text-white">
+                <tr>
+                    <th>Foto</th>
+                    <th>Lista</th>
+                    <th>Presidente</th>
+                    <th>Eslogan</th>
+                    <th>Plan de Trabajo</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidatura in candidaturas %}
+                    <tr>
+                        <td>
+                            {% if candidatura.foto %}
+                                <img src="{{ candidatura.foto.url }}" alt="{{ candidatura.nombre_lista }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="fa fa-users text-white"></i>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="font-weight-bold text-white">{{ candidatura.nombre_lista }}</td>
+                        <td>{{ candidatura.presidente }}</td>
+                        <td class="text-muted">{{ candidatura.eslogan }}</td>
+                        <td>
+                            {% if candidatura.plan_trabajo %}
+                                <a href="{{ candidatura.plan_trabajo.url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="fa fa-file-pdf-o me-1"></i> PDF
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Sin plan</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if candidatura.aprobada %}
+                                <span class="badge bg-success text-white px-2 py-1">Aprobada</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark px-2 py-1">Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'elecciones:candidatura_update' candidatura.pk %}" class="btn btn-sm btn-info text-white me-1" title="Editar">
+                                <i class="fa fa-pencil"></i>
+                            </a>
+                            
+                            <form id="form-delete-cand-{{ candidatura.pk }}" action="{% url 'elecciones:candidatura_delete' candidatura.pk %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="button" class="btn btn-sm btn-danger btn-eliminar-cand" data-id="{{ candidatura.pk }}" data-lista="{{ candidatura.nombre_lista }}" title="Eliminar">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">No hay candidaturas registradas.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const botonesEliminar = document.querySelectorAll('.btn-eliminar-cand');
+
+    botonesEliminar.forEach(boton => {
+        boton.addEventListener('click', function() {
+            const candId = this.getAttribute('data-id');
+            const candLista = this.getAttribute('data-lista');
+
+            Swal.fire({
+                title: '¿Eliminar candidatura?',
+                html: `Vas a eliminar la candidatura <strong>"${candLista}"</strong>.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`form-delete-cand-${candId}`).submit();
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

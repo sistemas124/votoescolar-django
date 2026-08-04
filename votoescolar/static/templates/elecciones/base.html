@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}VOTOESCOLAR{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/templatemo-grad-school.css' %}">
+    <link rel="stylesheet" href="{% static 'css/fontawesome.css' %}">
+</head>
+<body>
+<header class="main-header clearfix" role="header">
+    <div class="logo">
+        <a href="{% url 'votoescolar:dashboard' %}"><em>VOTO</em>ESCOLAR</a>
+    </div>
+    <nav role="navigation" class="main-nav">
+        <ul class="main-menu d-flex flex-wrap">
+            <li><a href="{% url 'votoescolar:dashboard' %}">Inicio</a></li>
+            {% if user.is_authenticated and user|has_group:"Tribunal Electoral" %}
+                <li><a href="{% url 'votoescolar:candidatura_list' %}">Candidaturas</a></li>
+                <li><a href="{% url 'votoescolar:estudiante_list' %}">Estudiantes</a></li>
+                <li><a href="{% url 'votoescolar:resultados' %}">Resultados</a></li>
+            {% endif %}
+            {% if user.is_authenticated and user|has_group:"Estudiante" %}
+                <li><a href="{% url 'votoescolar:papeleta' %}">Papeleta</a></li>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
+            {% else %}
+                <li><a href="{% url 'login' %}">Ingresar</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+
+<div class="container mt-5">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+</div>
+
+<script src="{% static 'jquery/jquery.min.js' %}"></script>
+<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/custom.js' %}"></script>
+</body>
+</html>

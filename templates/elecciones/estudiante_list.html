@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Padrón Estudiantil - VOTOESCOLAR{% endblock %}
+
+{% block content %}
+<div class="card p-4 shadow-lg border-0 rounded-3">
+    <!-- Encabezado con título y botones bien separados -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h2 class="m-0 text-white font-weight-bold">
+            <i class="fa fa-users me-2"></i> Padrón de Estudiantes
+        </h2>
+        
+        <!-- Botones con separación con me-3 -->
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'elecciones:export_padron_excel' %}" class="btn btn-success font-weight-bold px-3 me-3">
+                <i class="fa fa-file-excel-o me-1"></i> Exportar Excel
+            </a>
+            
+            <a href="{% url 'elecciones:estudiante_create' %}" class="btn btn-warning font-weight-bold text-dark px-3" style="background-color: #f5a425 !important; border-color: #f5a425 !important; color: #162239 !important; opacity: 1 !important; visibility: visible !important;">
+                <i class="fa fa-user-plus me-1"></i> Nuevo Estudiante
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabla de Estudiantes -->
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 text-white">
+            <thead class="bg-dark text-white">
+                <tr>
+                    <th>Usuario</th>
+                    <th>Nombre Completo</th>
+                    <th>Cédula / Matrícula</th>
+                    <th>Grado / Curso</th>
+                    <th>Paralelo</th>
+                    <th>Estado de Voto</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for estudiante in estudiantes %}
+                    <tr>
+                        <td class="font-weight-bold text-white">{{ estudiante.usuario.username }}</td>
+                        <td>{{ estudiante.usuario.get_full_name|default:estudiante.usuario.username }}</td>
+                        <td>{{ estudiante.cedula_matricula }}</td>
+                        <td>{{ estudiante.grado_curso }}</td>
+                        <td>{{ estudiante.paralelo }}</td>
+                        <td>
+                            {% if estudiante.ha_votado %}
+                                <span class="badge bg-success text-white px-2 py-1"><i class="fa fa-check"></i> YA VOTÓ</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark px-2 py-1"><i class="fa fa-clock-o"></i> PENDIENTE</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'elecciones:estudiante_update' estudiante.pk %}" class="btn btn-sm btn-info text-white me-1" title="Editar">
+                                <i class="fa fa-pencil"></i>
+                            </a>
+                            
+                            <form id="form-delete-est-{{ estudiante.pk }}" action="{% url 'elecciones:estudiante_delete' estudiante.pk %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="button" class="btn btn-sm btn-danger btn-eliminar-est" data-id="{{ estudiante.pk }}" data-usuario="{{ estudiante.usuario.username }}" title="Eliminar">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">No hay estudiantes registrados.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const botonesEliminar = document.querySelectorAll('.btn-eliminar-est');
+
+    botonesEliminar.forEach(boton => {
+        boton.addEventListener('click', function() {
+            const estId = this.getAttribute('data-id');
+            const estUsuario = this.getAttribute('data-usuario');
+
+            Swal.fire({
+                title: '¿Eliminar estudiante?',
+                html: `Vas a retirar al estudiante <strong>"${estUsuario}"</strong> del padrón.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(`form-delete-est-${estId}`).submit();
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

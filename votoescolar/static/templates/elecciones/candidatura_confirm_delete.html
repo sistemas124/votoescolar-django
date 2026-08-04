@@ -1,0 +1,15 @@
+{% extends 'elecciones/base.html' %}
+{% block title %}Eliminar candidatura - VOTOESCOLAR{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h3>Eliminar candidatura</h3>
+        <p>¿Deseas eliminar la candidatura <strong>{{ candidatura.nombre_lista }}</strong>?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+            <a href="{% url 'votoescolar:candidatura_list' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

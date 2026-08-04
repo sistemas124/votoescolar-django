@@ -1,0 +1,16 @@
+{% extends 'elecciones/base.html' %}
+{% block title %}Panel - VOTOESCOLAR{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="jumbotron py-4 shadow-sm">
+            <h1 class="display-5">Bienvenido a VOTOESCOLAR</h1>
+            <p class="lead">Gestiona candidaturas, estudiantes y supervisa el proceso de votación desde un panel responsivo.</p>
+            <hr class="my-4">
+            <p>Total candidaturas activas: {{ candidaturas.count }}</p>
+            <p>Total estudiantes registrados: {{ estudiantes }}</p>
+            <p>Total votos emitidos: {{ votos }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

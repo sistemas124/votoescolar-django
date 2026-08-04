@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Iniciar Sesión - VOTOESCOLAR</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/fontawesome.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/templatemo-grad-school.css' %}">
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background-color: #1e293b;
+            border: 2px solid #f5a425;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            padding: 40px;
+            width: 100%;
+            max-width: 440px;
+        }
+        .logo-login {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+        .logo-login em {
+            color: #f5a425;
+            font-style: normal;
+        }
+        .form-control-custom {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 12px 15px;
+            height: auto;
+        }
+        .form-control-custom:focus {
+            background-color: #0f172a;
+            border-color: #f5a425;
+            color: #ffffff;
+            box-shadow: 0 0 0 0.2rem rgba(245, 164, 37, 0.25);
+        }
+        .btn-warning-custom {
+            background-color: #f5a425;
+            color: #111827;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+        .btn-warning-custom:hover {
+            background-color: #e09216;
+            color: #000;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card text-center">
+        <div class="mb-4">
+            <h1 class="logo-login"><em>VOTO</em>ESCOLAR</h1>
+            <p class="text-light small mt-1">Sistema de Elecciones Estudiantiles</p>
+        </div>
+
+        {% if form.errors %}
+            <div class="alert alert-danger alert-dismissible fade show text-left small mb-4" role="alert" style="border-radius: 8px;">
+                <i class="fa fa-exclamation-circle mr-1"></i> Usuario o contraseña incorrectos. Inténtalo de nuevo.
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group text-left mb-3">
+                <label for="id_username" class="text-light font-weight-bold small"><i class="fa fa-user mr-1 text-warning"></i> Nombre de Usuario</label>
+                <input type="text" name="username" autofocus required class="form-control form-control-custom" id="id_username" placeholder="Ingresa tu usuario">
+            </div>
+
+            <div class="form-group text-left mb-4">
+                <label for="id_password" class="text-light font-weight-bold small"><i class="fa fa-lock mr-1 text-warning"></i> Contraseña</label>
+                <input type="password" name="password" required class="form-control form-control-custom" id="id_password" placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="btn btn-warning-custom btn-block shadow">
+                <i class="fa fa-sign-in mr-2"></i> INICIAR SESIÓN
+            </button>
+        </form>
+
+        <div class="mt-4 pt-3 border-top border-secondary">
+            <small class="text-muted"><i class="fa fa-shield text-warning"></i> Acceso protegido para Estudiantes y Tribunal Electoral.</small>
+        </div>
+    </div>
+
+</body>
+</html>

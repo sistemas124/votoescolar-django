@@ -1,0 +1,16 @@
+{% extends 'elecciones/base.html' %}
+{% block title %}Comprobante - VOTOESCOLAR{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h3>Comprobante de Voto</h3>
+        <p>Tu voto ha sido registrado correctamente.</p>
+        <ul class="list-group">
+            <li class="list-group-item"><strong>Lista elegida:</strong> {{ voto.eleccion.nombre_lista }}</li>
+            <li class="list-group-item"><strong>Fecha y hora:</strong> {{ voto.fecha_hora|date:'d/m/Y H:i' }}</li>
+            <li class="list-group-item"><strong>Código de verificación:</strong> {{ voto.hash_seguridad }}</li>
+        </ul>
+        <a href="{% url 'votoescolar:dashboard' %}" class="btn btn-secondary mt-3">Volver al inicio</a>
+    </div>
+</div>
+{% endblock %}

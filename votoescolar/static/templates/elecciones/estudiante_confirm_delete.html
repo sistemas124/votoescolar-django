@@ -1,0 +1,15 @@
+{% extends 'elecciones/base.html' %}
+{% block title %}Eliminar estudiante - VOTOESCOLAR{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h3>Eliminar estudiante</h3>
+        <p>¿Deseas eliminar al estudiante <strong>{{ estudiante.usuario.username }}</strong>?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+            <a href="{% url 'votoescolar:estudiante_list' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Panel de Control - VOTOESCOLAR{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-custom {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Encabezado del Dashboard -->
+    <div class="col-12 mb-4">
+        <div class="card card-custom p-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <div>
+                <h2 class="font-weight-bold text-warning mb-1">
+                    <i class="fa fa-tachometer"></i> Panel de Control Tribunal Electoral
+                </h2>
+                <p class="text-light mb-0">Supervisión en tiempo real del proceso democrático estudiantil.</p>
+            </div>
+            <div class="mt-3 mt-md-0 d-flex align-items-center">
+                <span class="mr-3">
+                    Estado Proceso: 
+                    {% if proceso.estado == 'Abierto' %}
+                        <span class="badge badge-success p-2 px-3 font-weight-bold"><i class="fa fa-unlock"></i> ABIERTO</span>
+                    {% else %}
+                        <span class="badge badge-danger p-2 px-3 font-weight-bold"><i class="fa fa-lock"></i> CERRADO</span>
+                    {% endif %}
+                </span>
+
+                {% if is_tribunal %}
+                    <a href="{% url 'elecciones:toggle_proceso' %}" class="btn btn-sm btn-outline-warning">
+                        <i class="fa fa-power-off"></i> Cambiar Estado
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjetas Métricas Rápidas -->
+    <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="card card-custom p-3 border-left border-primary" style="border-left-width: 5px !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small text-uppercase font-weight-bold">Total Votos Emitidos</span>
+                    <h2 class="font-weight-bold text-primary mb-0 mt-1">{{ votos_count }}</h2>
+                </div>
+                <div class="rounded-circle bg-primary p-3 text-white">
+                    <i class="fa fa-envelope-open-o fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="card card-custom p-3 border-left border-success" style="border-left-width: 5px !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small text-uppercase font-weight-bold">Padrón Estudiantil</span>
+                    <h2 class="font-weight-bold text-success mb-0 mt-1">{{ estudiantes_count }}</h2>
+                </div>
+                <div class="rounded-circle bg-success p-3 text-white">
+                    <i class="fa fa-users fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="card card-custom p-3 border-left border-warning" style="border-left-width: 5px !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small text-uppercase font-weight-bold">Candidaturas</span>
+                    <h2 class="font-weight-bold text-warning mb-0 mt-1">{{ candidaturas.count }}</h2>
+                </div>
+                <div class="rounded-circle bg-warning p-3 text-dark">
+                    <i class="fa fa-id-card-o fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-12 mb-4">
+        <div class="card card-custom p-3 border-left border-info" style="border-left-width: 5px !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small text-uppercase font-weight-bold">Participación</span>
+                    <h2 class="font-weight-bold text-info mb-0 mt-1">
+                        {% if estudiantes_count > 0 %}
+                            {% widthratio votos_count estudiantes_count 100 %}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </h2>
+                </div>
+                <div class="rounded-circle bg-info p-3 text-white">
+                    <i class="fa fa-line-chart fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Gráfico y Resumen de Resultados en Tiempo Real -->
+    <div class="col-lg-8 col-12 mb-4">
+        <div class="card card-custom p-4 h-100">
+            <h4 class="font-weight-bold text-warning mb-3">
+                <i class="fa fa-bar-chart"></i> Escrutinio en Tiempo Real
+            </h4>
+            <div style="position: relative; height: 300px;">
+                <canvas id="votesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de Acción Oficiales y Reportes -->
+    <div class="col-lg-4 col-12 mb-4">
+        <div class="card card-custom p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h4 class="font-weight-bold text-warning mb-3">
+                    <i class="fa fa-download"></i> Acciones y Descargas
+                </h4>
+                <p class="text-light small">
+                    Genera el Acta Oficial de escrutinios, exporta la nómina del padrón o envía la notificación final de resultados por correo electrónico.
+                </p>
+
+                <div class="mt-4">
+                    {% if is_tribunal %}
+                        <a href="{% url 'elecciones:notificar_resultados_masivo' %}" 
+                           class="btn btn-warning btn-block btn-lg py-3 mb-3 shadow font-weight-bold text-dark" 
+                           style="border-radius: 10px;"
+                           onclick="return confirm('¿Deseas enviar el correo masivo con los resultados oficiales a toda la comunidad estudiantil?');">
+                            <i class="fa fa-envelope-o mr-2"></i> NOTIFICAR RESULTADOS
+                        </a>
+                    {% endif %}
+
+                    <a href="{% url 'elecciones:acta_final_pdf' %}" class="btn btn-danger btn-block py-3 mb-3 shadow font-weight-bold" style="border-radius: 10px;">
+                        <i class="fa fa-file-pdf-o mr-2"></i> DESCARGAR ACTA PDF
+                    </a>
+
+                    <div class="row no-gutters mb-3">
+                        <div class="col-6 pr-1">
+                            <a href="{% url 'elecciones:export_padron_excel' %}" class="btn btn-success btn-block py-3 shadow font-weight-bold" style="border-radius: 10px; font-size: 0.85rem;">
+                                <i class="fa fa-file-excel-o mr-1"></i> PADRÓN EXCEL
+                            </a>
+                        </div>
+                        <div class="col-6 pl-1">
+                            <a href="{% url 'elecciones:export_padron_csv' %}" class="btn btn-info btn-block py-3 shadow font-weight-bold" style="border-radius: 10px; font-size: 0.85rem;">
+                                <i class="fa fa-file-text-o mr-1"></i> PADRÓN CSV
+                            </a>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'elecciones:papeleta' %}" class="btn btn-outline-warning btn-block py-2 shadow font-weight-bold">
+                        <i class="fa fa-check-square-o mr-2"></i> IR A PAPELETA
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-dark p-3 rounded border border-secondary mt-3 text-center">
+                <small class="text-muted"><i class="fa fa-shield text-warning"></i> Documentos oficiales cifrados y validados por el Tribunal Electoral.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla Detalle de Votos por Lista -->
+<div class="row">
+    <div class="col-12">
+        <div class="card card-custom p-4">
+            <h4 class="font-weight-bold text-warning mb-3"><i class="fa fa-list-alt"></i> Detalle de Escrutinio por Candidatura</h4>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0" style="border-radius: 8px; overflow: hidden;">
+                    <thead style="background-color: #0f172a;">
+                        <tr>
+                            <th>Lista</th>
+                            <th>Presidente / Candidato</th>
+                            <th class="text-center">Votos Registrados</th>
+                            <th class="text-center">Porcentaje</th>
+                            <th>Progreso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in conteo_votos %}
+                            <tr>
+                                <td>
+                                    <span class="badge px-3 py-1 text-white font-weight-bold" style="background-color: {{ item.color|default:'#f5a425' }};">
+                                        {{ item.candidatura.nombre_lista }}
+                                    </span>
+                                </td>
+                                <td class="font-weight-bold">{{ item.candidatura.presidente }}</td>
+                                <td class="text-center font-weight-bold text-warning">{{ item.votos }}</td>
+                                <td class="text-center font-weight-bold">{{ item.porcentaje }}%</td>
+                                <td style="width: 30%;">
+                                    <div class="progress" style="height: 12px; background-color: #334155; border-radius: 6px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                                             style="width: {{ item.porcentaje }}%; background-color: {{ item.color|default:'#f5a425' }};" 
+                                             aria-valuenow="{{ item.porcentaje }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="fa fa-info-circle mr-1"></i> No existen registros de votos aún.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- IMPORTANTE: Carga de Chart.js para renderizar el gráfico -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var canvas = document.getElementById('votesChart');
+        if (!canvas) return;
+
+        var ctx = canvas.getContext('2d');
+        var labels = [{% for item in conteo_votos %}"{{ item.candidatura.nombre_lista|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+        var data = [{% for item in conteo_votos %}{{ item.votos }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+        var colors = [{% for item in conteo_votos %}"{{ item.color|default:'#f5a425' }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+        if (labels.length === 0) {
+            labels = ["Sin Votos"];
+            data = [0];
+            colors = ["#f5a425"];
+        }
+
+        var votesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Cantidad de Votos',
+                    data: data,
+                    backgroundColor: colors,
+                    borderColor: '#ffffff',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#94a3b8', stepSize: 1 },
+                        grid: { color: '#334155' }
+                    },
+                    x: {
+                        ticks: { color: '#f8fafc', font: { weight: 'bold' } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

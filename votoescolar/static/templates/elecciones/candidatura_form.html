@@ -1,0 +1,15 @@
+{% extends 'elecciones/base.html' %}
+{% block title %}{{ title }} - VOTOESCOLAR{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h3>{{ title }}</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="{% url 'votoescolar:candidatura_list' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
