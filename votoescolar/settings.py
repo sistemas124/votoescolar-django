@@ -55,7 +55,7 @@ ROOT_URLCONF = 'votoescolar.urls'
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'BACKEND': 'django.template.backends.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -130,11 +130,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 LOGIN_URL = '/accounts/login/'
+
 # CONFIGURACIÓN DE ENVÍO DE CORREOS REALES
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'jeniffer.chicaiza7566@utc.edu.ec'  # Corregida la coma por punto
-EMAIL_HOST_PASSWORD = 'ucfe agxc vryi sqhq'
+EMAIL_HOST_USER = 'jeniffer.chicaiza7566@utc.edu.ec'
+EMAIL_HOST_PASSWORD = 'ljbzkiosjisroqlb'  # Espacios eliminados para evitar fallos de autenticación
 DEFAULT_FROM_EMAIL = 'Sistema VotoEscolar <jeniffer.chicaiza7566@utc.edu.ec>'
+SERVER_EMAIL = 'jeniffer.chicaiza7566@utc.edu.ec'
