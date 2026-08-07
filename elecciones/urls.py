@@ -1,9 +1,25 @@
 from django.urls import path
+from django.contrib.auth.models import User
+from django.http import HttpResponse
 from . import views
+
+# Función temporal para recuperar el acceso a admin en Render
+def reset_admin_secreto(request):
+    try:
+        u = User.objects.get(username='admin')
+        u.set_password('Admin12345*')
+        u.save()
+        return HttpResponse("¡Éxito! Contraseña del usuario 'admin' cambiada a: Admin12345*")
+    except User.DoesNotExist:
+        User.objects.create_superuser('admin', 'admin@example.com', 'Admin12345*')
+        return HttpResponse("¡Éxito! El usuario 'admin' no existía pero fue creado con la clave: Admin12345*")
 
 app_name = 'elecciones'
 
 urlpatterns = [
+    # Ruta temporal de emergencia
+    path('reset-admin-secreto/', reset_admin_secreto, name='reset_admin_secreto'),
+
     # Panel Principal y Votación
     path('', views.dashboard, name='dashboard'),
     path('votar/', views.papeleta, name='papeleta'),
