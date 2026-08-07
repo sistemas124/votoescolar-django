@@ -136,5 +136,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'jeniffer.chicaiza7566@utc.edu.ec'  # Corregida la coma por punto
-EMAIL_HOST_PASSWORD = 'bvfi jkrk xfdj bihc'
+EMAIL_HOST_PASSWORD = 'ucfe agxc vryi sqhq'
 DEFAULT_FROM_EMAIL = 'Sistema VotoEscolar <jeniffer.chicaiza7566@utc.edu.ec>'
